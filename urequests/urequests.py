@@ -30,7 +30,7 @@ class Response:
         return ujson.loads(self.content)
 
 
-def request(method, url, data=None, json=None, headers={}, stream=None):
+def request(method, url, data=None, json=None, headers={}, stream=None, timeout=None):
     try:
         proto, dummy, host, path = url.split("/", 3)
     except ValueError:
@@ -51,6 +51,8 @@ def request(method, url, data=None, json=None, headers={}, stream=None):
     ai = usocket.getaddrinfo(host, port)
     addr = ai[0][-1]
     s = usocket.socket()
+    if timeout:
+	s.settimeout(timeout)
     s.connect(addr)
     if proto == "https:":
         s = ussl.wrap_socket(s, server_hostname=host)
