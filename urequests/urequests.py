@@ -86,8 +86,10 @@ def request(method, url, data=None, json=None, headers={}, stream=None, timeout=
         #print(l)
         if l.lower().startswith(b"transfer-encoding:"):
             if b"chunked" in l:
+                s.close()
                 raise ValueError("Unsupported " + l)
         elif l.lower().startswith(b"location:") and 300 <= status <= 399:
+            s.close()
             if redirect <= 0:
                 raise ValueError("Too many redirects")
             else:
