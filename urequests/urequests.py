@@ -30,7 +30,7 @@ class Response:
         return ujson.loads(self.content)
 
 
-def request(method, url, data=None, json=None, headers={}, stream=None, timeout=None):
+def request(method, url, data=None, json=None, headers={}, stream=None, timeout=None, redirect=5):
     try:
         proto, dummy, host, path = url.split("/", 3)
     except ValueError:
@@ -84,11 +84,14 @@ def request(method, url, data=None, json=None, headers={}, stream=None, timeout=
         if not l or l == b"\r\n":
             break
         #print(l)
-        if l.startswith(b"Transfer-Encoding:"):
+        if l.lower().startswith(b"transfer-encoding:"):
             if b"chunked" in l:
                 raise ValueError("Unsupported " + l)
-        elif l.startswith(b"Location:") and not 200 <= status <= 299:
-            raise NotImplementedError("Redirects not yet supported")
+        elif l.lower().startswith(b"location:") and 300 <= status <= 399:
+            if redirect <= 0:
+                raise ValueError("Too many redirects")
+            else:
+                return request(method, l[9:len(l)].decode().strip(), data, json, headers, stream, timeout, redirect-1)
 
     resp = Response(s)
     resp.status_code = status
