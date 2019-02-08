@@ -212,7 +212,7 @@ def install(to_install, install_path=None):
             installed.append(pkg_spec)
             if debug:
                 print(meta)
-            deps = meta.get("deps", "").rstrip()
+            deps = meta.get("deps", "").rstrip(" \t\n\r\v\f\x00")
             if deps:
                 deps = deps.decode("utf-8").split("\n")
                 to_install.extend(deps)
@@ -286,7 +286,7 @@ def main():
                         break
                     if l[0] == "#":
                         continue
-                    to_install.append(l.rstrip())
+                    to_install.append(l.rstrip(" \t\n\r\v\f\x00"))
         elif opt == "--debug":
             debug = True
         else:

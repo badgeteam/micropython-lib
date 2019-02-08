@@ -75,8 +75,8 @@ class TarFile:
                 return None
 
             d = TarInfo()
-            d.name = str(h.name, "utf-8").rstrip()
-            d.size = int(bytes(h.size).rstrip(), 8)
+            d.name = str(h.name, "utf-8").rstrip(" \t\n\r\v\f\x00")
+            d.size = int(bytes(h.size).rstrip(b" \t\n\r\v\f\x00"), 8)
             d.type = [REGTYPE, DIRTYPE][d.name[-1] == "/"]
             self.subf = d.subf = FileSection(self.f, d.size, roundup(d.size, 512))
             return d
